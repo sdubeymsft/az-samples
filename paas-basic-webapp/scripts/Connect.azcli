@@ -7,4 +7,4 @@ az login
 
 az account list-locations -o table
 
-az account set --subscription "b6fbb5e0-ebac-4de6-9743-84d307032b94"
+az account set --subscription "inspiresub"
