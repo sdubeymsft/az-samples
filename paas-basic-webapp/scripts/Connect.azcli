@@ -1,10 +1,9 @@
 # Go to portal.azure.us
-
 # Login to Azure Government and list locations.
 az cloud set --name AzureUSGovernment
 
-az login
+az login --username "<USERNAME>"
+
+az account set --subscription "<SUBNAME"
 
 az account list-locations -o table
-
-az account set --subscription "inspiresub"

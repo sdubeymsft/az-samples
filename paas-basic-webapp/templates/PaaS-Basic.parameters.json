@@ -12,13 +12,13 @@
       "value": "va"
     },
     "databaseName": {
-      "value": "app1db"
+      "value": "db"
     },
     "administratorLogin": {
       "value":"dbadmin"
     },
     "administratorLoginPassword": {
-      "value":"dadfferff213^&*()"
+      "value":""
     }
   }
 }
