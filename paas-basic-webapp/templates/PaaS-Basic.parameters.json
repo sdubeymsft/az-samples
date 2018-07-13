@@ -1,0 +1,24 @@
+﻿{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+  "parameters": {
+    "appName": {
+      "value": "app1"
+    },
+    "environment": {
+      "value": "dev"
+    },
+    "locationShort": {
+      "value": "va"
+    },
+    "databaseName": {
+      "value": "app1db"
+    },
+    "administratorLogin": {
+      "value":"dbadmin"
+    },
+    "administratorLoginPassword": {
+      "value":"dadfferff213^&*()"
+    }
+  }
+}
