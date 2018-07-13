@@ -1,0 +1,7 @@
+
+az cloud set --name AzureUSGovernment
+az login
+
+az group create --name BasicWeb --location "USGov Virginia"
+# tag resource groups
+az group deployment create --name deployment1 --resource-group BasicWeb --template-file "PaaS-Basic.json" --parameters "PaaS-Basic.parameters.json" --parameters appName="app2" --parameters administratorLoginPassword=""
