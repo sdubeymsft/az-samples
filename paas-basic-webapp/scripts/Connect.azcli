@@ -4,6 +4,6 @@ az cloud set --name AzureUSGovernment
 
 az login --username "<USERNAME>"
 
-az account set --subscription "<SUBNAME"
+az account set --subscription "<SUBNAME>"
 
 az account list-locations -o table
