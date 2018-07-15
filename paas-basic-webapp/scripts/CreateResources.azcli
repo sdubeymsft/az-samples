@@ -2,8 +2,9 @@
 az cloud set --name AzureUSGovernment
 az login --username "<USERNAME>"
 
-$resourceGroupName = "BasicWeb"
-az group create --name $resourceGroupName --location "USGov Virginia"
-az group update -n $resourceGroupName --set tags.Environment=Dev tags.Dept=Engineering
+$resourceGroup = "BasicWeb"
+az group create --name $resourceGroup --location "USGov Virginia" --tags Environment=Dev Dept=Engineering
 
-az group deployment create --name deployment1 --resource-group $resourceGroupName --template-file PaaS-Basic.json --parameters @PaaS-Basic.parameters.json --parameters administratorLoginPassword="<PASSWORD>"
+cd "<TEMPLATE DIRECTORY>"
+$databaseAdminPassword = ([char[]]([char]33..[char]95) + ([char[]]([char]97..[char]126)) + 0..9 | sort {Get-Random})[0..8] -join ''
+az group deployment create --name deployment1 --resource-group $resourceGroup --template-file PaaS-Basic.json --parameters @PaaS-Basic.parameters.json --parameters administratorLoginPassword=$databaseAdminPassword
