@@ -4,7 +4,7 @@ az login --username "<USERNAME>"
 
 $resourceGroup = "BasicWeb"
 $webApp = "app1-dev-va-web"
-$deployUser = "dep4loyuser" # has to be unique
+$deployUser = "dep3loyuser" # account level, global and has to be unique
 
 az webapp deployment user set --user-name $deployUser
 
