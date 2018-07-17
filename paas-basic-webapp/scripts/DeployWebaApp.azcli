@@ -2,7 +2,7 @@
 az cloud set --name AzureUSGovernment
 az login --username "<USERNAME>"
 
-$resourceGroup = "BasicWeb"
+$resourceGroup = "basicapp"
 $webApp = "app1-dev-va-web"
 $deployUser = "dep3loyuser" # account level, global and has to be unique
 

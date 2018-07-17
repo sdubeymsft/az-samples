@@ -97,11 +97,16 @@
         "Standard_RAGRS",
         "Premium_LRS"
       ]
-    }
+    }    
   },
   "variables": {
+    "keyVaultName": "[concat(parameters('appName'), '-', parameters('environment'), '-', parameters('locationShort'), '-keyvault')]",
+    "redisName": "[concat(parameters('appName'), '-', parameters('environment'), '-', parameters('locationShort'), '-redis')]",
     "webSiteName": "[concat(parameters('appName'), '-', parameters('environment'), '-', parameters('locationShort'), '-web')]",
+    "webAPIName": "[concat(parameters('appName'), '-', parameters('environment'), '-', parameters('locationShort'), '-api')]",
+    "functionName": "[concat(parameters('appName'), '-', parameters('environment'), '-', parameters('locationShort'), '-function')]",
     "sqlserverName": "[concat('app1', '-', parameters('environment'), '-', parameters('locationShort'), '-sql')]",
+    "cosmosDBName": "[concat(parameters('appName'), '-', parameters('environment'), '-', parameters('locationShort'), '-cosmosdb')]",
     "hostingPlanName": "[concat(parameters('appName'), '-', parameters('locationShort'), '-web')]",
     "storageAccountName": "[concat(parameters('appName'), 'data001')]"
   },
@@ -111,18 +116,164 @@
       "kind": "v12.0,user",
       "name": "[concat(variables('sqlserverName'), '/', parameters('databaseName'))]",
       "apiVersion": "2014-04-01-preview",
-      "location": "USGov Virginia",
+      "location": "[resourceGroup().location]",
       "scale": null,
       "properties": {
-        "edition": "[parameters('edition')]",
-        "collation": "[parameters('collation')]",
-        "maxSizeBytes": "[parameters('maxSizeBytes')]",
-        "requestedServiceObjectiveName": "[parameters('requestedServiceObjectiveName')]"
+          "edition": "[parameters('edition')]",
+          "collation": "[parameters('collation')]",
+          "maxSizeBytes": "[parameters('maxSizeBytes')]",
+          "requestedServiceObjectiveName": "[parameters('requestedServiceObjectiveName')]"         
       },
       "dependsOn": [
-          "subscriptions/b6fbb5e0-ebac-4de6-9743-84d307032b94/resourceGroups/BasicWeb/providers/Microsoft.Sql/servers/app1-dev-va-sql"
+          "[resourceId('Microsoft.Sql/servers', variables('sqlserverName'))]"
       ]
-  },
+    },
+    {
+      "name": "[variables('sqlserverName')]",
+      "type": "Microsoft.Sql/servers",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "SqlServer"
+      },
+      "apiVersion": "2014-04-01-preview",
+      "properties": {
+        "administratorLogin": "[parameters('administratorLogin')]",
+        "administratorLoginPassword": "[parameters('administratorLoginPassword')]"
+      },
+      "resources": [
+        {
+          "name": "[parameters('databaseName')]",
+          "type": "databases",
+          "location": "[resourceGroup().location]",
+          "tags": {
+            "displayName": "Database"
+          },
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', variables('sqlserverName'))]"
+          ],
+          "properties": {
+            "edition": "[parameters('edition')]",
+            "collation": "[parameters('collation')]",
+            "maxSizeBytes": "[parameters('maxSizeBytes')]",
+            "requestedServiceObjectiveName": "[parameters('requestedServiceObjectiveName')]"
+          }
+        },
+        {
+          "type": "firewallrules",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', variables('sqlserverName'))]"
+          ],
+          "location": "[resourceGroup().location]",
+          "name": "AllowAllWindowsAzureIps",
+          "properties": {
+            "endIpAddress": "0.0.0.0",
+            "startIpAddress": "0.0.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "name": "[variables('keyVaultName')]",
+      "apiVersion": "2016-10-01",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "scale": null,
+      "properties": {
+          "sku": {
+              "family": "A",
+              "name": "standard"
+          },
+          "tenantId": "3f2ca3aa-206a-47ca-9684-4004879a47e3",
+          "accessPolicies": [
+              {
+                  "tenantId": "3f2ca3aa-206a-47ca-9684-4004879a47e3",
+                  "objectId": "edb29e65-a355-4628-a0c4-719897f61d9b",
+                  "permissions": {
+                      "keys": [
+                          "get",
+                          "list",
+                          "update",
+                          "create",
+                          "import",
+                          "delete",
+                          "recover",
+                          "backup",
+                          "restore"
+                      ],
+                      "secrets": [
+                          "get",
+                          "list",
+                          "set",
+                          "delete",
+                          "recover",
+                          "backup",
+                          "restore"
+                      ],
+                      "certificates": [
+                          "get",
+                          "list",
+                          "update",
+                          "create",
+                          "import",
+                          "delete",
+                          "recover"
+                      ]
+                  }
+              }
+          ],
+          "enabledForDeployment": true,
+          "enabledForDiskEncryption": true,
+          "enabledForTemplateDeployment": true
+      },
+      "dependsOn": []
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "kind": "MongoDB",
+      "name": "[variables('cosmosDBName')]",
+      "apiVersion": "2015-04-08",
+      "location": "[resourceGroup().location]",
+      "tags": {
+          "defaultExperience": "MongoDB"
+      },
+      "scale": null,
+      "properties": {
+          "databaseAccountOfferType": "Standard",
+          "consistencyPolicy": {
+              "defaultConsistencyLevel": "Session",
+              "maxIntervalInSeconds": 5,
+              "maxStalenessPrefix": 100
+          },
+          "name": "[variables('cosmosDBName')]"
+      },
+      "dependsOn": []
+    },
+    {
+      "type": "Microsoft.Cache/Redis",
+      "name": "[variables('redisName')]",
+      "apiVersion": "2017-10-01",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "scale": null,
+      "properties": {
+          "sku": {
+              "name": "Standard",
+              "family": "C",
+              "capacity": 1
+          },
+          "enableNonSslPort": false,
+          "redisConfiguration": {
+              "maxclients": "1000",
+              "maxmemory-reserved": "50",
+              "maxfragmentationmemory-reserved": "50",
+              "maxmemory-delta": "50"
+          }
+      },
+      "dependsOn": []
+    },
     {
       "apiVersion": "2015-08-01",
       "name": "[variables('hostingPlanName')]",
@@ -173,7 +324,7 @@
         {
           "apiVersion": "2015-08-01",
           "type": "slots",
-          "name": "Staging",
+          "name": "staging",
           "dependsOn": [
             "[concat('Microsoft.Web/Sites/', variables('webSiteName'))]"
           ],
@@ -185,13 +336,12 @@
         {
           "apiVersion": "2015-08-01",
           "type": "slots",
-          "name": "LastKnownGood",
+          "name": "stable",
           "dependsOn": [
             "[concat('Microsoft.Web/Sites/', variables('webSiteName'))]"
           ],
           "location": "[resourceGroup().location]",
           "properties": {
-
           }
         }
       ]
@@ -410,6 +560,108 @@
       "properties": {
         "accountType": "[parameters('storageAccountType')]"
       }
+    },
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[variables('webAPIName')]",
+      "type": "Microsoft.Web/sites",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Web/serverFarms/', variables('hostingPlanName'))]"
+      ],
+      "tags": {
+        "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('hostingPlanName'))]": "empty",
+        "displayName": "WebsAPI"
+      },
+      "properties": {
+        "name": "[variables('webAPIName')]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "type": "config",
+          "name": "connectionstrings",
+          "dependsOn": [
+            "[concat('Microsoft.Web/Sites/', variables('webAPIName'))]"
+          ],
+          "properties": {
+            "DefaultConnection": {
+              "value": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('databaseName'), ';User Id=', parameters('administratorLogin'), '@', variables('sqlserverName'), ';Password=', parameters('administratorLoginPassword'), ';')]",
+              "type": "SQLServer"
+            }
+          }
+        },
+        {
+          "apiVersion": "2015-08-01",
+          "type": "slots",
+          "name": "staging",
+          "dependsOn": [
+            "[concat('Microsoft.Web/Sites/', variables('webAPIName'))]"
+          ],
+          "location": "[resourceGroup().location]",
+          "properties": {
+
+          }
+        },
+        {
+          "apiVersion": "2015-08-01",
+          "type": "slots",
+          "name": "stable",
+          "dependsOn": [
+            "[concat('Microsoft.Web/Sites/', variables('webAPIName'))]"
+          ],
+          "location": "[resourceGroup().location]",
+          "properties": {
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "kind": "functionapp",
+      "name": "[variables('functionName')]",
+      "apiVersion": "2016-08-01",
+      "location": "USGov Virginia",
+      "tags": {
+          "hidden-related:/subscriptions/b6fbb5e0-ebac-4de6-9743-84d307032b94/resourcegroups/AdvancedWeb/providers/Microsoft.Web/serverfarms/app2-va-web": "empty"
+      },
+      "scale": null,
+      "properties": {
+          "enabled": true,
+          "hostNameSslStates": [
+              {
+                  "name": "[concat(variables('functionName'),'.azurewebsites.us')]",
+                  "sslState": "Disabled",
+                  "virtualIP": null,
+                  "thumbprint": null,
+                  "toUpdate": null,
+                  "hostType": "Standard"
+              },
+              {
+                  "name": "[concat(variables('functionName'),'.scm.azurewebsites.us')]",
+                  "sslState": "Disabled",
+                  "virtualIP": null,
+                  "thumbprint": null,
+                  "toUpdate": null,
+                  "hostType": "Repository"
+              }
+          ],
+          "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+          "reserved": false,
+          "siteConfig": null,
+          "scmSiteAlsoStopped": false,
+          "hostingEnvironmentProfile": null,
+          "clientAffinityEnabled": false,
+          "clientCertEnabled": false,
+          "hostNamesDisabled": false,
+          "containerSize": 1536,
+          "dailyMemoryTimeQuota": 0,
+          "cloningInfo": null
+      },
+      "dependsOn": [
+          "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+      ]
     }
   ]
 }

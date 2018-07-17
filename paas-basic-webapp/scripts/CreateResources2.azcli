@@ -2,9 +2,9 @@
 az cloud set --name AzureUSGovernment
 az login --username "<USERNAME>"
 
-$resourceGroup = "AdvancedWeb"
+$resourceGroup = "advancedapp"
 az group create --name $resourceGroup --location "USGov Virginia" --tags Environment=Dev Dept=Engineering
 
 cd "<TEMPLATE DIRECTORY>"
-$databaseAdminPassword = ([char[]]([char]33..[char]95) + ([char[]]([char]97..[char]126)) + 0..9 | sort {Get-Random})[0..8] -join ''
+$databaseAdminPassword = ([char[]]([char]65..[char]90) + [char[]]([char]33..[char]95) + ([char[]]([char]97..[char]126)) + 0..12 | sort {Get-Random})[0..11] -join ''
 az group deployment create --name deployment2 --resource-group $resourceGroup --template-file PaaS-Advanced.json --parameters @PaaS-Advanced.parameters.json --parameters administratorLoginPassword=$databaseAdminPassword
