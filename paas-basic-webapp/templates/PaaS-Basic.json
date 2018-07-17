@@ -202,7 +202,7 @@
         {
           "apiVersion": "2015-08-01",
           "type": "slots",
-          "name": "Staging",
+          "name": "staging",
           "dependsOn": [
             "[concat('Microsoft.Web/Sites/', variables('webSiteName'))]"
           ],
@@ -214,7 +214,7 @@
         {
           "apiVersion": "2015-08-01",
           "type": "slots",
-          "name": "LastKnownGood",
+          "name": "stable",
           "dependsOn": [
             "[concat('Microsoft.Web/Sites/', variables('webSiteName'))]"
           ],

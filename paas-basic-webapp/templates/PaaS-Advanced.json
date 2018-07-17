@@ -112,69 +112,6 @@
   },
   "resources": [
     {
-      "type": "Microsoft.Sql/servers/databases",
-      "kind": "v12.0,user",
-      "name": "[concat(variables('sqlserverName'), '/', parameters('databaseName'))]",
-      "apiVersion": "2014-04-01-preview",
-      "location": "[resourceGroup().location]",
-      "scale": null,
-      "properties": {
-          "edition": "[parameters('edition')]",
-          "collation": "[parameters('collation')]",
-          "maxSizeBytes": "[parameters('maxSizeBytes')]",
-          "requestedServiceObjectiveName": "[parameters('requestedServiceObjectiveName')]"         
-      },
-      "dependsOn": [
-          "[resourceId('Microsoft.Sql/servers', variables('sqlserverName'))]"
-      ]
-    },
-    {
-      "name": "[variables('sqlserverName')]",
-      "type": "Microsoft.Sql/servers",
-      "location": "[resourceGroup().location]",
-      "tags": {
-        "displayName": "SqlServer"
-      },
-      "apiVersion": "2014-04-01-preview",
-      "properties": {
-        "administratorLogin": "[parameters('administratorLogin')]",
-        "administratorLoginPassword": "[parameters('administratorLoginPassword')]"
-      },
-      "resources": [
-        {
-          "name": "[parameters('databaseName')]",
-          "type": "databases",
-          "location": "[resourceGroup().location]",
-          "tags": {
-            "displayName": "Database"
-          },
-          "apiVersion": "2014-04-01-preview",
-          "dependsOn": [
-            "[concat('Microsoft.Sql/servers/', variables('sqlserverName'))]"
-          ],
-          "properties": {
-            "edition": "[parameters('edition')]",
-            "collation": "[parameters('collation')]",
-            "maxSizeBytes": "[parameters('maxSizeBytes')]",
-            "requestedServiceObjectiveName": "[parameters('requestedServiceObjectiveName')]"
-          }
-        },
-        {
-          "type": "firewallrules",
-          "apiVersion": "2014-04-01-preview",
-          "dependsOn": [
-            "[concat('Microsoft.Sql/servers/', variables('sqlserverName'))]"
-          ],
-          "location": "[resourceGroup().location]",
-          "name": "AllowAllWindowsAzureIps",
-          "properties": {
-            "endIpAddress": "0.0.0.0",
-            "startIpAddress": "0.0.0.0"
-          }
-        }
-      ]
-    },
-    {
       "type": "Microsoft.KeyVault/vaults",
       "name": "[variables('keyVaultName')]",
       "apiVersion": "2016-10-01",
@@ -316,7 +253,7 @@
           ],
           "properties": {
             "DefaultConnection": {
-              "value": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('databaseName'), ';User Id=', parameters('administratorLogin'), '@', variables('sqlserverName'), ';Password=', parameters('administratorLoginPassword'), ';')]",
+              "value": "",
               "type": "SQLServer"
             }
           }
@@ -587,7 +524,7 @@
           ],
           "properties": {
             "DefaultConnection": {
-              "value": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('databaseName'), ';User Id=', parameters('administratorLogin'), '@', variables('sqlserverName'), ';Password=', parameters('administratorLoginPassword'), ';')]",
+              "value": "",
               "type": "SQLServer"
             }
           }
