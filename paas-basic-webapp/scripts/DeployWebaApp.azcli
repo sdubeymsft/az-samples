@@ -1,0 +1,17 @@
+
+az cloud set --name AzureUSGovernment
+az login --username "<USERNAME>"
+
+$resourceGroup = "basicapp"
+$webApp = "app1-dev-va-web"
+$deployUser = "dep3loyuser" # account level, global and has to be unique
+
+az webapp deployment user set --user-name $deployUser
+
+cd <SOURCE DIRECTORY>
+az webapp deployment source config-local-git --name $webApp --resource-group $resourceGroup --query [url] --output tsv
+
+git remote remove azure
+git remote add azure "https://$deployUser@$webApp.scm.azurewebsites.us/$webApp.git"
+
+git push azure master
