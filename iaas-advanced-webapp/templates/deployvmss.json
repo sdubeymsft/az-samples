@@ -1,0 +1,102 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "VMSSName": {
+      "type": "string"
+    },
+    "singlePlacementGroup": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "instanceCount": {
+      "type": "int"
+    },
+    "subnetId": {
+      "type": "string"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "datadiskinGB" : {
+      "type": "int",
+      "defaultValue": 4095
+    },
+    "vmSize" : {
+      "type": "string",
+      "defaultValue": "Standard_F4s"
+    }
+  },
+  "variables": {
+    "sizeOfEachDataDiskInGB":"4095"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2017-03-30",
+      "name": "[parameters('vmSSName')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "[parameters('vmSize')]",
+        "tier": "Standard",
+        "capacity": "[parameters('instanceCount')]"
+      },
+      "properties": {
+        "singlePlacementGroup": "[parameters('singlePlacementGroup')]",
+        "overprovision": true,
+        "upgradePolicy": {
+          "mode": "Manual"
+        },
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "dataDisks": [
+                {
+                  "diskSizeGB": "[parameters('datadiskinGB')]",
+                  "lun": 0,
+                  "createOption": "Empty"
+                }
+              ],
+            "osDisk": {
+              "createOption": "FromImage",
+              "caching": "ReadWrite"
+            },
+            "imageReference": {
+              "publisher": "OpenLogic",
+              "offer": "CentOS",
+              "sku": "6.6",
+              "version": "latest"
+            }
+          },
+          "osProfile": {
+            "computerNamePrefix": "[parameters('vmSSName')]",
+            "adminUsername": "[parameters('adminUsername')]",
+            "adminPassword": "[parameters('adminPassword')]"
+          },
+          "networkProfile": {
+            "networkInterfaceConfigurations": [
+              {
+                "name": "[concat('nic', parameters('vmSSName'))]",
+                "properties": {
+                  "primary": true,
+                  "ipConfigurations": [
+                    {
+                      "name": "[concat('ipconfig', parameters('vmSSName'))]",
+                      "properties": {
+                        "subnet": {
+                          "Id": "[parameters('subnetId')]"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
