@@ -39,7 +39,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
       },
-      "defaultValue": ""
+      "defaultValue": "https://raw.githubusercontent.com/sdubeymsft/az-samples/master/iaas-advanced-webapp/templates"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -92,7 +92,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[concat(parameters('_artifactsLocation'), '/nestedtemplates/deployvmss.json', parameters('_artifactsLocationSasToken'))]",
+          "uri": "[concat(parameters('_artifactsLocation'), '/deployvmss.json', parameters('_artifactsLocationSasToken'))]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {

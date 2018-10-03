@@ -66,7 +66,7 @@
             "imageReference": {
               "publisher": "OpenLogic",
               "offer": "CentOS",
-              "sku": "6.6",
+              "sku": "6.9",
               "version": "latest"
             }
           },
